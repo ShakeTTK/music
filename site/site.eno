@@ -27,16 +27,22 @@ track.download_access: disabled
 
 assets:
 - custom.css
+- jquery.min.js
+- jquery.ripples.min.js
 - water.js
 - comments.js
 - analytics.js
 - site-config.js
 - logo.svg
+- water-bg.jpg
 
 -- metadata
 <link href="{{logo.svg}}" rel="icon" type="image/svg+xml">
 <link href="{{custom.css}}" rel="stylesheet">
+<meta name="water-bg" content="{{water-bg.jpg}}">
 <script src="{{site-config.js}}" defer></script>
+<script src="{{jquery.min.js}}" defer></script>
+<script src="{{jquery.ripples.min.js}}" defer></script>
 <script src="{{water.js}}" defer></script>
 <script src="{{comments.js}}" defer></script>
 <script src="{{analytics.js}}" defer></script>

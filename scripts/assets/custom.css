@@ -6,22 +6,40 @@
    ========================================================================= */
 
 /* ---------------------------------------------------------------------
-   1) 水波涟漪画布
-   body::before 是 Faircamp 的背景层（z-index:-1），
-   水波画布同样放在 z-index:-1 但后出现，因此位于背景之上、内容之下。
+   1) 水波涟漪背景（jquery.ripples / WebGL）
+   背景图由构建器压缩为 water-bg.jpg；失败时保留 Faircamp 静态背景。
    --------------------------------------------------------------------- */
-#water-canvas {
+#ripples-background {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
     z-index: -1;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
     pointer-events: none;
-    opacity: 1;
+}
+
+#ripples-background canvas {
+    pointer-events: none;
+}
+
+/* 与原站点一致的压暗层，保证文字可读性 */
+#ripples-background::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 10, 16, 0.58);
+    pointer-events: none;
+}
+
+html.ripples-enabled body::before {
+    display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    #water-canvas { display: none; }
+    #ripples-background { display: none; }
 }
 
 /* ---------------------------------------------------------------------

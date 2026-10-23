@@ -1,35 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="月下涟漪">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="三道水波">
   <defs>
-    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0a1424"/>
-      <stop offset="1" stop-color="#14314a"/>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1626"/>
+      <stop offset="1" stop-color="#0b1626"/>
     </linearGradient>
-    <linearGradient id="stroke1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#eaf5ff"/>
-      <stop offset="1" stop-color="#a9cfe9"/>
-    </linearGradient>
-    <linearGradient id="wave1" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#6fa8cf" stop-opacity="0"/>
-      <stop offset=".5" stop-color="#8fc4e6" stop-opacity=".85"/>
-      <stop offset="1" stop-color="#6fa8cf" stop-opacity="0"/>
+    <linearGradient id="line3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2f8ff"/>
+      <stop offset="1" stop-color="#8ec5e9"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="120" fill="url(#bg1)"/>
-  <circle cx="256" cy="256" r="196" fill="none" stroke="#8fc4e6" stroke-opacity=".28" stroke-width="2"/>
-  <circle cx="256" cy="256" r="216" fill="none" stroke="#8fc4e6" stroke-opacity=".12" stroke-width="1.5"/>
-  <!-- 月亮 -->
-  <circle cx="366" cy="150" r="44" fill="#e7f1fa" opacity=".9"/>
-  <circle cx="382" cy="138" r="40" fill="#0c1a2c"/>
-  <!-- 千 -->
-  <g stroke="url(#stroke1)" stroke-width="24" stroke-linecap="round" fill="none">
-    <path d="M176 198 L342 198"/>
-    <path d="M258 140 L258 388"/>
-    <path d="M176 128 L248 184"/>
+  <rect width="512" height="512" rx="120" fill="url(#bg3)"/>
+  <circle cx="256" cy="256" r="196" fill="none" stroke="#8ec5e9" stroke-opacity=".2" stroke-width="2"/>
+  <!-- 用三道流动的水线构成抽象的「千」 -->
+  <g fill="none" stroke="url(#line3)" stroke-linecap="round">
+    <path d="M120 256 Q176 224 232 256 T344 256 T438 232" stroke-width="20"/>
+    <path d="M256 148 Q268 214 256 280 T268 424" stroke-width="20"/>
+    <path d="M166 136 Q208 178 250 220" stroke-width="20" opacity=".9"/>
   </g>
-  <!-- 水波 -->
-  <g fill="none" stroke="url(#wave1)" stroke-width="6" stroke-linecap="round">
-    <path d="M118 402 Q176 384 234 402 T350 402 T466 402"/>
-    <path d="M118 434 Q176 416 234 434 T350 434 T466 434" opacity=".6"/>
-    <path d="M118 466 Q176 448 234 466 T350 466 T466 466" opacity=".35"/>
+  <!-- 水波点缀 -->
+  <g fill="none" stroke="#8ec5e9" stroke-opacity=".42" stroke-width="4" stroke-linecap="round">
+    <path d="M120 330 Q176 312 232 330 T344 330 T438 330"/>
+    <path d="M120 356 Q176 338 232 356 T344 356 T438 356" opacity=".55"/>
   </g>
+  <circle cx="392" cy="150" r="6" fill="#eaf4ff" opacity=".85"/>
 </svg>

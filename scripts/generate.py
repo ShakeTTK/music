@@ -19,6 +19,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import traceback
 from datetime import datetime
@@ -422,27 +423,61 @@ def prepare_assets():
     """把 scripts/assets 下存在的文件复制到站点根目录；缺失的功能自动降级。"""
     copied = []
     wanted = [
-        ("custom.css", "css", '<link href="{{custom.css}}" rel="stylesheet">'),
-        ("water.js", "js", '<script src="{{water.js}}" defer></script>'),
-        ("comments.js", "js", '<script src="{{comments.js}}" defer></script>'),
-        ("analytics.js", "js", '<script src="{{analytics.js}}" defer></script>'),
+        ("custom.css", "custom.css", "css", '<link href="{{custom.css}}" rel="stylesheet">'),
+        ("ripples/jquery.min.js", "jquery.min.js", "js", '<script src="{{jquery.min.js}}" defer></script>'),
+        ("ripples/jquery.ripples.min.js", "jquery.ripples.min.js", "js", '<script src="{{jquery.ripples.min.js}}" defer></script>'),
+        ("water.js", "water.js", "js", '<script src="{{water.js}}" defer></script>'),
+        ("comments.js", "comments.js", "js", '<script src="{{comments.js}}" defer></script>'),
+        ("analytics.js", "analytics.js", "js", '<script src="{{analytics.js}}" defer></script>'),
     ]
     css_tags, js_tags = [], []
     if not ASSETS_SRC.exists():
         warn("scripts/assets 不存在，站点将不带自定义样式和交互")
         return copied, css_tags, js_tags
-    for filename, kind, tag in wanted:
-        src = ASSETS_SRC / filename
+    for src_rel, dest_name, kind, tag in wanted:
+        src = ASSETS_SRC / src_rel
         if not src.exists():
-            warn(f"scripts/assets/{filename} 不存在，对应功能已禁用")
+            warn(f"scripts/assets/{src_rel} 不存在，对应功能已禁用")
             continue
         try:
-            shutil.copy2(src, SITE / filename)
-            copied.append(filename)
+            shutil.copy2(src, SITE / dest_name)
+            copied.append(dest_name)
             (css_tags if kind == "css" else js_tags).append(tag)
         except Exception as exc:  # noqa: BLE001
-            warn(f"复制 {filename} 失败，对应功能已禁用: {exc}")
+            warn(f"复制 {dest_name} 失败，对应功能已禁用: {exc}")
     return copied, css_tags, js_tags
+
+
+def find_ffmpeg():
+    env = os.environ.get("FFMPEG_EXE")
+    if env and Path(env).exists():
+        return env
+    for candidate in (
+        Path(r"D:\AIMUSIC\Faircamp2\app\ffmpeg.exe"),
+        Path(r"D:\AIMUSIC\Faircamp\ffmpeg.exe"),
+    ):
+        if candidate.exists():
+            return str(candidate)
+    return shutil.which("ffmpeg")
+
+
+def prepare_water_bg(src: Path):
+    """水波效果用的背景图：缩放压缩为 jpg，避免把 4MB+ 原图直接放进站点。"""
+    dst = SITE / "water-bg.jpg"
+    ffmpeg = find_ffmpeg()
+    if ffmpeg:
+        try:
+            subprocess.run(
+                [ffmpeg, "-y", "-loglevel", "error", "-i", str(src), "-vf", "scale=1920:-2", "-q:v", "3", str(dst)],
+                check=True,
+                timeout=180,
+            )
+            return "water-bg.jpg"
+        except Exception as exc:  # noqa: BLE001
+            warn(f"水波背景图压缩失败，尝试直接复制: {exc}")
+    if copy_file(src, SITE / f"water-bg{src.suffix.lower()}", "水波背景图"):
+        return f"water-bg{src.suffix.lower()}"
+    return None
 
 
 def write_site_config_js(cfg):
@@ -472,7 +507,7 @@ def install_logo(cfg):
     return None
 
 
-def write_site_manifest(cfg, asset_files, css_tags, js_tags, has_config_js, logo_file=None):
+def write_site_manifest(cfg, asset_files, css_tags, js_tags, has_config_js, logo_file=None, water_bg_file=None):
     mode = cfg["theme"]["mode"]
     dark_bg = cfg.get("dark_background_rel") or "images/1.png"
     lines = [
@@ -510,6 +545,8 @@ def write_site_manifest(cfg, asset_files, css_tags, js_tags, has_config_js, logo
     metadata_tags = list(css_tags)
     if logo_file:
         metadata_tags.insert(0, '<link href="{{logo.svg}}" rel="icon" type="image/svg+xml">')
+    if water_bg_file:
+        metadata_tags.append('<meta name="water-bg" content="{{' + water_bg_file + '}}">')
     if has_config_js:
         metadata_tags.append('<script src="{{site-config.js}}" defer></script>')
     metadata_tags += js_tags
@@ -575,6 +612,15 @@ def main():
     config["dark_background_rel"] = dark_rel
     config["light_background_rel"] = light_rel
 
+    # 水波效果背景图（压缩后的 jpg）
+    water_bg = None
+    if truthy(config["water"].get("enabled", "true")):
+        if config["theme"]["mode"] == "light":
+            water_src = backgrounds.get("light") or backgrounds.get("dark") or (SITE / "images" / "1.png")
+        else:
+            water_src = backgrounds.get("dark") or (SITE / "images" / "1.png")
+        water_bg = run_module("水波背景图", lambda: prepare_water_bg(water_src), fallback=None)
+
     # 自定义封面
     for track in tracks:
         override = cover_overrides.get(track["slug"]) or cover_overrides.get(track["name"].lower())
@@ -602,9 +648,11 @@ def main():
         asset_files = list(asset_files) + [config_js]
     if logo_file:
         asset_files = list(asset_files) + [logo_file]
+    if water_bg:
+        asset_files = list(asset_files) + [water_bg]
     run_module(
         "站点 site.eno",
-        lambda: write_site_manifest(config, asset_files, css_tags, js_tags, bool(config_js), logo_file),
+        lambda: write_site_manifest(config, asset_files, css_tags, js_tags, bool(config_js), logo_file, water_bg),
         required=True,
     )
 
