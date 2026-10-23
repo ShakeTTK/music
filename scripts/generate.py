@@ -409,8 +409,6 @@ def write_catalog_manifest(site_cfg, pages, home_image_name, artist_links):
         "一些自己的音乐，欢迎收听",
         "-- synopsis",
         "",
-        "m3u: enabled",
-        "",
         "permalink: homepage",
     ]
     sections = [f"## {title}\n\n{text}" for _, (title, text) in pages.items()]
