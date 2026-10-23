@@ -1,0 +1,210 @@
+/* =========================================================================
+   千里的音乐小站 —— 自定义样式
+   说明：本文件由站点构建过程自动复制到站点根目录。
+   分为多个独立小节：水波画布 / 折叠评论窗口 / 细节修饰。
+   任何一节写坏都只影响对应功能，不影响页面其余部分。
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------
+   1) 水波涟漪画布
+   body::before 是 Faircamp 的背景层（z-index:-1），
+   水波画布同样放在 z-index:-1 但后出现，因此位于背景之上、内容之下。
+   --------------------------------------------------------------------- */
+#water-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #water-canvas { display: none; }
+}
+
+/* ---------------------------------------------------------------------
+   2) 折叠评论窗口
+   --------------------------------------------------------------------- */
+.comments-toggle {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 900;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border: 1px solid var(--b3);
+    border-radius: 999px;
+    background: var(--b1-90);
+    color: var(--f1);
+    font: inherit;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 28px hsl(0 0% 0% / 35%);
+    transition: transform .18s ease, border-color .18s ease, background-color .18s ease;
+}
+
+.comments-toggle:hover {
+    transform: translateY(-2px);
+    border-color: var(--b-acc);
+}
+
+.comments-toggle:focus-visible {
+    outline: 2px solid var(--f1);
+    outline-offset: 3px;
+}
+
+.comments-toggle .comments-toggle__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--b-acc);
+    box-shadow: 0 0 10px var(--b-acc);
+}
+
+.comments-panel {
+    position: fixed;
+    right: 22px;
+    bottom: 82px;
+    z-index: 901;
+    display: none;
+    flex-direction: column;
+    width: min(390px, calc(100vw - 28px));
+    max-height: min(72vh, 640px);
+    border: 1px solid var(--b3);
+    border-radius: 18px;
+    background: var(--b1-90);
+    color: var(--f1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 22px 60px hsl(0 0% 0% / 45%);
+    overflow: hidden;
+}
+
+.comments-panel.is-open {
+    display: flex;
+}
+
+.comments-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--b2);
+    flex: 0 0 auto;
+}
+
+.comments-panel__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+
+.comments-panel__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--f2);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.comments-panel__close:hover {
+    background: var(--b2);
+    color: var(--f1);
+}
+
+.comments-panel__body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 4px 14px 16px;
+    overscroll-behavior: contain;
+}
+
+.comments-panel__hint {
+    margin: 14px 4px;
+    color: var(--f3);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.comments-panel__hint a {
+    color: var(--f1);
+}
+
+.comments-panel .giscus,
+.comments-panel .giscus-frame {
+    width: 100%;
+    border: 0;
+}
+
+@media (max-width: 560px) {
+    .comments-toggle {
+        right: 14px;
+        bottom: 14px;
+        padding: 11px 16px;
+        font-size: 14px;
+    }
+
+    .comments-panel {
+        right: 14px;
+        left: 14px;
+        bottom: 70px;
+        width: auto;
+        max-height: 68vh;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   3) 细节修饰（可安全删除）
+   --------------------------------------------------------------------- */
+/* 让封面在鼠标悬停时轻微上浮，增加一点水感的灵动 */
+.release .cover,
+.track .cover {
+    transition: transform .35s cubic-bezier(.2, .7, .3, 1), box-shadow .35s ease;
+}
+
+.release .cover:hover,
+.track .cover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 34px hsl(0 0% 0% / 32%);
+}
+
+/* ---------------------------------------------------------------------
+   4) 自定义 LOGO / favicon
+   对应 content/config.ini 的 [brand] logo（1/2/3）。
+   构建时会把选中的 SVG 复制到站点根目录 logo.svg，
+   这里隐藏 Faircamp 默认图标并换成自己的 LOGO。
+   --------------------------------------------------------------------- */
+header #logo > svg {
+    display: none !important;
+}
+
+#logo::before {
+    content: "";
+    display: inline-block;
+    width: 1.4em;
+    height: 1.4em;
+    margin-right: .45em;
+    background: url("logo.svg") center / contain no-repeat;
+    vertical-align: -.3em;
+}
+
+/* 页脚更安静一点 */
+footer {
+    opacity: .86;
+}

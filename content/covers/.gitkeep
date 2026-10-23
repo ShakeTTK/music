@@ -1,0 +1,7 @@
+# 自定义封面放在这里，文件名用作品的文件夹名，例如：
+#   Abadon.jpg
+#   Winter Eve.png
+#   Find the truth.jpeg
+#
+# 支持的扩展名：jpg / jpeg / png / webp
+# 放了就会替换站点上的原封面；没放的作品保持原封面。

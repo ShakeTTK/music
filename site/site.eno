@@ -1,0 +1,43 @@
+title: "千里的音乐小站"
+
+language: zh-hans-cn
+
+base_url: https://shakettk.github.io/music/
+
+clean_urls
+
+*.theme.mode: dark
+
+*.theme.dark:
+background_alpha = 30
+background_image = images/1.png
+accent_hue = 210
+accent_chroma = 60
+accent_brightening = 70
+base_hue = 0
+base_chroma = 0
+
+*.theme.round_corners: enabled
+
+disable_favicon
+
+*.embedding: enabled
+
+track.download_access: disabled
+
+assets:
+- custom.css
+- water.js
+- comments.js
+- analytics.js
+- site-config.js
+- logo.svg
+
+-- metadata
+<link href="{{logo.svg}}" rel="icon" type="image/svg+xml">
+<link href="{{custom.css}}" rel="stylesheet">
+<script src="{{site-config.js}}" defer></script>
+<script src="{{water.js}}" defer></script>
+<script src="{{comments.js}}" defer></script>
+<script src="{{analytics.js}}" defer></script>
+-- metadata

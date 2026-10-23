@@ -1,0 +1,1 @@
+window.__SITE_CONFIG__ = {"water": {"enabled": "true", "strength": "1.2", "opacity": "0.55"}, "comments": {"enabled": "true", "repo": "ShakeTTK/music", "repo_id": "", "category": "Comments", "category_id": ""}, "analytics": {"enabled": "false", "provider": "cloudflare", "token": ""}};

@@ -1,0 +1,78 @@
+name: 构建并部署站点
+
+# 触发方式：
+#   - 推送到 main 分支（本地运行 scripts/update.bat 会做这件事）
+#   - 也可以在 GitHub 网页上手动运行（Actions -> 构建并部署站点 -> Run workflow）
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装 ffmpeg（Faircamp 转码需要）
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: 下载 Faircamp 2.0.1 CLI
+        run: |
+          set -e
+          curl -4 -fsSL -o /tmp/faircamp.deb "https://faircamp.org/packages/faircamp_cli_2.0.1-1+deb12_amd64.deb"
+          dpkg-deb -x /tmp/faircamp.deb /tmp/faircamp
+          FAIRCAMP_BIN="$(find /tmp/faircamp -type f -name faircamp | head -n 1)"
+          if [ -z "$FAIRCAMP_BIN" ]; then
+            echo "未在安装包里找到 faircamp 可执行文件"; exit 1
+          fi
+          echo "找到 Faircamp: $FAIRCAMP_BIN"
+          echo "$(dirname "$FAIRCAMP_BIN")" >> "$GITHUB_PATH"
+
+      - name: 生成内容（模块化；缺失模块自动降级，不中断构建）
+        env:
+          SITE_ANALYTICS_TOKEN: ${{ secrets.SITE_ANALYTICS_TOKEN }}
+        run: python3 scripts/generate.py
+
+      - name: 构建站点
+        run: |
+          mkdir -p site/.faircamp_build
+          faircamp build --site-dir site --build-dir site/.faircamp_build --cache-dir site/.faircamp_cache --non-interactive
+
+      - name: 构建后处理（可选，失败不影响部署）
+        continue-on-error: true
+        run: python3 scripts/postprocess.py site/.faircamp_build
+
+      - name: 配置 GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传站点产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/.faircamp_build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

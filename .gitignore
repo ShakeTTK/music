@@ -1,0 +1,14 @@
+# 构建产物与缓存（不要提交到 Git）
+site/.faircamp_build/
+site/.faircamp_cache/
+logs/
+
+# 本地敏感信息（如果以后需要放密钥，请放在这里，已被忽略）
+secrets/
+.env
+*.local.ini
+
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store

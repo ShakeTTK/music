@@ -1,0 +1,12 @@
+# ============================================================
+#  外链下载（可选）
+#  格式：作品文件夹名 = 平台名 https://完整链接
+#  一个作品可以写多行，会生成多个平台的下载/购买跳转按钮
+#  没写的作品不显示下载按钮（保持仅在线收听）
+#  注意：链接必须是完整的 http:// 或 https:// 地址
+# ============================================================
+
+# 示例：
+# Abadon = 网易云音乐 https://music.163.com/song?id=xxxx
+# Abadon = QQ音乐 https://y.qq.com/n/ryqq/songDetail/xxxx
+# Winter Eve = Bandcamp https://yourname.bandcamp.com/track/winter-eve

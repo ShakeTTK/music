@@ -1,0 +1,38 @@
+# ============================================================
+#  发行日期（可选）
+#  格式：作品文件夹名 = YYYY-MM-DD
+#  没写的作品会保持「无日期」，不影响其它内容
+#  作品文件夹名就是 site/ 下的目录名，例如：Abadon、Winter Eve、Let's Fight
+#  用 # 开头是注释
+# ============================================================
+
+# 示例（去掉前面的 # 并改成真实日期即可生效）：
+# Abadon = 2024-01-01
+# As the Dust Settles = 2024-02-14
+# Autoo = 2024-03-01
+# Canon&YaM = 2024-04-01
+# Chaos = 2024-05-01
+# Cloudbreak = 2024-06-01
+# End the War = 2024-07-01
+# Epic Novel = 2024-08-01
+# Face it = 2024-09-01
+# Find the truth = 2024-10-01
+# Hit the road = 2024-11-01
+# Let's Fight = 2024-12-01
+# Night = 2025-01-01
+# Peaceful Day = 2025-02-01
+# Restart = 2025-03-01
+# School&Hope = 2025-04-01
+# Schoollife = 2025-05-01
+# Space = 2025-06-01
+# Street = 2025-07-01
+# Symptom = 2025-08-01
+# The Blade of Farewell = 2025-09-01
+# The Key of The War = 2025-10-01
+# To the Future = 2025-11-01
+# Truly = 2025-12-01
+# Upon = 2026-01-01
+# Walking = 2026-02-01
+# Where the Wind Begins = 2026-03-01
+# Wind's End = 2026-04-01
+# Winter Eve = 2026-05-01

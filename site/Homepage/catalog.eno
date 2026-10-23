@@ -1,0 +1,14 @@
+links:
+- gitpage https://github.com/ShakeTTK/music
+title: "千里的音乐小站"
+
+image: ../images/2.png
+image_description: 站点首页图片
+
+-- synopsis
+一些自己的音乐，欢迎收听
+-- synopsis
+
+m3u: enabled
+
+permalink: homepage

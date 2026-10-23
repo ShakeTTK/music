@@ -1,0 +1,6 @@
+# 把背景图放在这个目录（任选其一即可，没有就用默认背景）：
+#   dark.jpg / dark.png   —— 深色主题背景
+#   light.jpg / light.png —— 浅色主题背景（仅当 config.ini 里 theme.mode = adaptive 时启用）
+#   home.jpg / home.png   —— 首页大图
+#
+# 建议：宽 1920px 左右，jpg 格式，单张不超过 1MB。

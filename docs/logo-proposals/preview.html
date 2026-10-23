@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>LOGO / FAVICON 三版方案</title>
+<style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 40px 32px 56px;
+        background: #080d15;
+        color: #e8f2fb;
+        font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; letter-spacing: .02em; }
+    .sub { margin: 0 0 34px; color: #8fa7bd; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .card {
+        background: linear-gradient(160deg, #101b2b, #0b1420);
+        border: 1px solid #22364d;
+        border-radius: 20px;
+        padding: 26px 24px 22px;
+    }
+    .card img.big { width: 100%; max-width: 220px; display: block; margin: 0 auto 18px; border-radius: 22%; }
+    .name { font-size: 17px; font-weight: 600; margin: 0 0 6px; }
+    .desc { font-size: 13px; line-height: 1.75; color: #9db3c7; margin: 0 0 18px; min-height: 64px; }
+    .sizes { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 18px; }
+    .sizes figure { margin: 0; text-align: center; }
+    .sizes img { display: block; margin: 0 auto 6px; border-radius: 22%; background: #0b1626; }
+    .sizes figcaption { font-size: 11px; color: #6e859a; }
+    .mock {
+        display: flex; align-items: center; gap: 10px;
+        border: 1px solid #22364d; border-radius: 12px;
+        padding: 10px 14px; background: #0a121e; font-size: 14px; color: #dcebf8;
+    }
+    .mock img { width: 26px; height: 26px; border-radius: 20%; }
+    .note { margin-top: 30px; color: #74899d; font-size: 12.5px; line-height: 1.8; }
+</style>
+</head>
+<body>
+    <h1>千里的音乐小站 · LOGO / FAVICON 三版方案</h1>
+    <p class="sub">请选一版；也可以指出想混搭的元素（例如用第 3 版的线条 + 第 1 版的月亮）。</p>
+
+    <div class="grid">
+        <section class="card">
+            <img class="big" src="logo-1-月下涟漪.svg" alt="方案一 月下涟漪">
+            <h2 class="name">方案一 · 月下涟漪</h2>
+            <p class="desc">深蓝夜色 + 弯月 + 水波，中间是几何化的「千」字。最贴合你作品的暗夜叙事气质，辨识度高。</p>
+            <div class="sizes">
+                <figure><img src="logo-1-月下涟漪.svg" width="64" height="64" alt=""><figcaption>64</figcaption></figure>
+                <figure><img src="logo-1-月下涟漪.svg" width="32" height="32" alt=""><figcaption>32</figcaption></figure>
+                <figure><img src="logo-1-月下涟漪.svg" width="16" height="16" alt=""><figcaption>16</figcaption></figure>
+            </div>
+            <div class="mock"><img src="logo-1-月下涟漪.svg" alt=""><span>千里的音乐小站</span></div>
+        </section>
+
+        <section class="card">
+            <img class="big" src="logo-2-千字水印.svg" alt="方案二 千字水印">
+            <h2 class="name">方案二 · 千字水印</h2>
+            <p class="desc">印章式双边框 + 蓝色底 + 粗笔画的「千」与水印波纹。更像一个个人印记，稳重、有签名感。</p>
+            <div class="sizes">
+                <figure><img src="logo-2-千字水印.svg" width="64" height="64" alt=""><figcaption>64</figcaption></figure>
+                <figure><img src="logo-2-千字水印.svg" width="32" height="32" alt=""><figcaption>32</figcaption></figure>
+                <figure><img src="logo-2-千字水印.svg" width="16" height="16" alt=""><figcaption>16</figcaption></figure>
+            </div>
+            <div class="mock"><img src="logo-2-千字水印.svg" alt=""><span>千里的音乐小站</span></div>
+        </section>
+
+        <section class="card">
+            <img class="big" src="logo-3-三道水波.svg" alt="方案三 三道水波">
+            <h2 class="name">方案三 · 三道水波</h2>
+            <p class="desc">三道流动的白色水线构成抽象的「千」，没有具象文字。最现代、最克制，小尺寸下也清晰。</p>
+            <div class="sizes">
+                <figure><img src="logo-3-三道水波.svg" width="64" height="64" alt=""><figcaption>64</figcaption></figure>
+                <figure><img src="logo-3-三道水波.svg" width="32" height="32" alt=""><figcaption>32</figcaption></figure>
+                <figure><img src="logo-3-三道水波.svg" width="16" height="16" alt=""><figcaption>16</figcaption></figure>
+            </div>
+            <div class="mock"><img src="logo-3-三道水波.svg" alt=""><span>千里的音乐小站</span></div>
+        </section>
+    </div>
+
+    <p class="note">
+        每版都是矢量 SVG，可直接用作 favicon（16px 依然可辨认）和页面顶部 LOGO；选定后我会接入站点并同步替换 favicon。
+        当前页面只是对比预览，还没有替换线上图标。
+    </p>
+</body>
+</html>
