@@ -204,6 +204,12 @@ header #logo > svg {
     vertical-align: -.3em;
 }
 
+/* 移动端：顶部操作链接允许换行，避免被截断 */
+.abstract .actions {
+    flex-wrap: wrap;
+    row-gap: .4rem;
+}
+
 /* 页脚更安静一点 */
 footer {
     opacity: .86;
