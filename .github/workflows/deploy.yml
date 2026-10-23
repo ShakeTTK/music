@@ -30,23 +30,37 @@ jobs:
           python-version: '3.12'
 
       - name: 准备 ffmpeg（Faircamp 转码需要）
-        timeout-minutes: 8
+        timeout-minutes: 6
         run: |
           set -e
           if command -v ffmpeg >/dev/null 2>&1; then
             echo "系统已自带 ffmpeg:"
             ffmpeg -version | head -n 1
-          else
-            echo "未检测到 ffmpeg，尝试 apt 安装（失败则使用静态版）"
-            if ! (sudo apt-get update -y && sudo apt-get install -y ffmpeg); then
-              echo "apt 安装失败，改用静态 ffmpeg"
-              curl -4 -fsSL -o /tmp/ffmpeg.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
-              mkdir -p /tmp/ffmpeg-static
-              tar -xJf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg-static --strip-components=1
-              echo "/tmp/ffmpeg-static" >> "$GITHUB_PATH"
-            fi
+            exit 0
           fi
-          command -v ffmpeg
+
+          echo "优先使用 PyPI 的静态 ffmpeg（不依赖 apt）"
+          if python3 -m pip install --quiet "imageio-ffmpeg==0.5.1"; then
+            FFMPEG_BIN="$(python3 -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+            mkdir -p "$HOME/.local/bin"
+            ln -sf "$FFMPEG_BIN" "$HOME/.local/bin/ffmpeg"
+            echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+            "$HOME/.local/bin/ffmpeg" -version | head -n 1
+            exit 0
+          fi
+
+          echo "PyPI 安装失败，尝试 apt（限时 120 秒）"
+          if timeout 120 sudo apt-get install -y ffmpeg; then
+            ffmpeg -version | head -n 1
+            exit 0
+          fi
+
+          echo "apt 也失败，改用 GitHub 上的静态构建"
+          curl -4 -fsSL -o /tmp/ffmpeg.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
+          mkdir -p /tmp/ffmpeg-static
+          tar -xJf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg-static --strip-components=1
+          echo "/tmp/ffmpeg-static/bin" >> "$GITHUB_PATH"
+          /tmp/ffmpeg-static/bin/ffmpeg -version | head -n 1
 
       - name: 下载 Faircamp 2.0.1 CLI
         run: |
