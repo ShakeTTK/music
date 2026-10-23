@@ -17,8 +17,10 @@ Faircamp 2 静态站点 + 内容外置框架 + GitHub Actions 云端构建。
 | 写关于 / 联系方式 / 版权 / 支持作者 | 编辑 `content/pages/*.md` |
 | 写艺术家简介 / 头像 / 社交链接 | 编辑 `content/artist/` |
 | 加外链下载 | 编辑 `content/downloads.txt` |
-| 功能开关（水波、评论、统计、嵌入） | 编辑 `content/config.ini` |
+| 功能开关（水波、歌单、评论、统计、嵌入） | 编辑 `content/config.ini` |
 | 更新并上传 | 双击 `scripts/update.bat` |
+
+> 临时歌单播放器在站点左下角「歌单」按钮里：勾选歌曲加入临时歌单，可顺序 / 单曲 / 随机播放。
 
 详细说明：
 

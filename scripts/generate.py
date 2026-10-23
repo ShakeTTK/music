@@ -427,6 +427,7 @@ def prepare_assets():
         ("ripples/jquery.min.js", "jquery.min.js", "js", '<script src="{{jquery.min.js}}" defer></script>'),
         ("ripples/jquery.ripples.min.js", "jquery.ripples.min.js", "js", '<script src="{{jquery.ripples.min.js}}" defer></script>'),
         ("water.js", "water.js", "js", '<script src="{{water.js}}" defer></script>'),
+        ("music-player.js", "music-player.js", "js", '<script src="{{music-player.js}}" defer></script>'),
         ("comments.js", "comments.js", "js", '<script src="{{comments.js}}" defer></script>'),
         ("analytics.js", "analytics.js", "js", '<script src="{{analytics.js}}" defer></script>'),
     ]
@@ -492,6 +493,16 @@ def write_site_config_js(cfg):
     return "site-config.js"
 
 
+def write_player_index_placeholder():
+    """临时歌单播放器的索引占位文件。
+
+    真正的曲目列表在构建后由 scripts/postprocess.py 写入，
+    这里先提供一个占位文件，让它作为站点资源被复制到构建根目录。
+    """
+    (SITE / "player-index.json").write_text('{"tracks":[]}\n', encoding="utf-8")
+    return "player-index.json"
+
+
 def install_logo(cfg):
     """按 content/config.ini 的 [brand] logo 选项，把选定的 LOGO 安装为网站图标。"""
     number = str(cfg.get("brand", {}).get("logo", "1")).strip() or "1"
@@ -547,6 +558,7 @@ def write_site_manifest(cfg, asset_files, css_tags, js_tags, has_config_js, logo
         metadata_tags.insert(0, '<link href="{{logo.svg}}" rel="icon" type="image/svg+xml">')
     if water_bg_file:
         metadata_tags.append('<meta name="water-bg" content="{{' + water_bg_file + '}}">')
+    metadata_tags.append('<meta name="music-index" content="{{player-index.json}}">')
     if has_config_js:
         metadata_tags.append('<script src="{{site-config.js}}" defer></script>')
     metadata_tags += js_tags
@@ -644,12 +656,15 @@ def main():
     asset_files, css_tags, js_tags = run_module("前端资源", prepare_assets, fallback=([], [], []))
     config_js = run_module("前端运行时配置", lambda: write_site_config_js(config), fallback=None)
     logo_file = run_module("站点 LOGO", lambda: install_logo(config), fallback=None)
+    player_index = run_module("播放器索引", write_player_index_placeholder, fallback=None)
     if config_js:
         asset_files = list(asset_files) + [config_js]
     if logo_file:
         asset_files = list(asset_files) + [logo_file]
     if water_bg:
         asset_files = list(asset_files) + [water_bg]
+    if player_index:
+        asset_files = list(asset_files) + [player_index]
     run_module(
         "站点 site.eno",
         lambda: write_site_manifest(config, asset_files, css_tags, js_tags, bool(config_js), logo_file, water_bg),

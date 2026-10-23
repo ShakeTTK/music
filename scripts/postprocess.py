@@ -247,8 +247,60 @@ def upgrade_embed_player(build_dir: Path) -> None:
         print(f"  已升级 {upgraded} 个嵌入播放器页面（APlayer）")
 
 
+@step("生成播放器曲目索引")
+def build_player_index(build_dir: Path) -> None:
+    """把构建结果里的曲目、音频地址、封面整理成 player-index.json，供前端歌单播放器使用。"""
+    repo = build_dir.parent.parent
+    artist = read_artist_name(repo)
+    tracks = []
+
+    for track_dir in sorted(build_dir.iterdir()):
+        if not track_dir.is_dir() or track_dir.name.startswith("."):
+            continue
+        if track_dir.name in {"Homepage", "Artist", "images", "_aplayer"}:
+            continue
+        page = track_dir / "index.html"
+        if not page.exists():
+            continue
+        audio_files = sorted(track_dir.glob("mp3-v5/**/*.mp3")) or sorted(track_dir.glob("opus-96/**/*.opus"))
+        if not audio_files:
+            continue
+
+        html_text = page.read_text(encoding="utf-8-sig")
+        title_match = re.search(r"<title>(.*?)</title>", html_text, flags=re.S)
+        title = html_module.unescape(title_match.group(1).strip()) if title_match else track_dir.name
+        duration_match = re.search(r'data-duration="([\d.]+)"', html_text)
+        duration = float(duration_match.group(1)) if duration_match else None
+
+        audio_rel = audio_files[0].relative_to(build_dir).as_posix()
+        covers = (
+            sorted(track_dir.glob("release_*_800.jpg"))
+            or sorted(track_dir.glob("release_*_640.jpg"))
+            or sorted(track_dir.glob("release_*_320.jpg"))
+        )
+        cover_rel = covers[-1].relative_to(build_dir).as_posix() if covers else ""
+
+        tracks.append(
+            {
+                "slug": track_dir.name,
+                "title": title,
+                "artist": artist,
+                "url": urllib.parse.quote(audio_rel, safe="/"),
+                "cover": urllib.parse.quote(cover_rel, safe="/") if cover_rel else "",
+                "duration": duration,
+            }
+        )
+
+    payload = {"artist": artist, "tracks": tracks}
+    (build_dir / "player-index.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    if tracks:
+        print(f"  已生成播放器曲目索引：{len(tracks)} 首")
+
+
 def run_all(build_dir: Path) -> None:
-    steps = [fix_feed_self_links, fix_embed_background, upgrade_embed_player]
+    steps = [fix_feed_self_links, fix_embed_background, upgrade_embed_player, build_player_index]
     for fn in steps:
         fn(build_dir)
 
