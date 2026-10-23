@@ -12,3 +12,10 @@ secrets/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 构建时生成的播放器索引（由脚本生成，不入库）
+site/player-index.json
