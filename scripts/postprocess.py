@@ -299,8 +299,71 @@ def build_player_index(build_dir: Path) -> None:
         print(f"  已生成播放器曲目索引：{len(tracks)} 首")
 
 
+def read_base_url(repo: Path) -> str:
+    manifest = repo / "site" / "site.eno"
+    if manifest.exists():
+        match = re.search(r"^base_url:\s*(\S+)\s*$", manifest.read_text(encoding="utf-8-sig"), flags=re.M)
+        if match:
+            return match.group(1).rstrip("/")
+    return ""
+
+
+@step("M3U 播放列表兼容化（Opus -> MP3）")
+def upgrade_m3u_playlists(build_dir: Path) -> None:
+    """Faircamp 默认用 Opus 生成 M3U，很多播放器不支持 Opus。
+
+    这里把 M3U 里的音频地址改为 MP3，并额外保留一份 Opus 版（playlist-opus.m3u）。
+    """
+    repo = build_dir.parent.parent
+    base = read_base_url(repo)
+    if not base:
+        raise RuntimeError("未找到 site.eno 里的 base_url")
+
+    changed = 0
+    for m3u in sorted(build_dir.rglob("*.m3u")):
+        original = m3u.read_text(encoding="utf-8-sig")
+        lines = original.splitlines()
+        output = []
+        for line in lines:
+            stripped = line.strip()
+
+            if stripped.startswith("http") and "/opus-96/" in stripped:
+                relative = stripped[len(base) + 1:] if stripped.startswith(base + "/") else ""
+                slug = relative.split("/")[0] if relative else ""
+                mp3_files = sorted((build_dir / slug).glob("mp3-v5/**/*.mp3")) if slug else []
+                if mp3_files:
+                    mp3_rel = mp3_files[0].relative_to(build_dir).as_posix()
+                    output.append(base + "/" + urllib.parse.quote(mp3_rel, safe="/"))
+                    changed += 1
+                    continue
+
+            if stripped.startswith("#EXTIMG:") and not stripped.startswith("#EXTIMG:http"):
+                image = stripped[len("#EXTIMG:"):]
+                playlist_dir = m3u.parent.relative_to(build_dir).as_posix()
+                absolute = base + "/" + ("" if playlist_dir == "." else playlist_dir + "/") + image
+                output.append("#EXTIMG:" + absolute)
+                changed += 1
+                continue
+
+            output.append(line)
+
+        if changed:
+            opus_copy = m3u.with_name(m3u.stem + "-opus.m3u")
+            opus_copy.write_text(original, encoding="utf-8")
+            m3u.write_text("\n".join(output) + "\n", encoding="utf-8")
+
+    if changed:
+        print(f"  已把 {changed} 处 M3U 地址改为 MP3 兼容格式")
+
+
 def run_all(build_dir: Path) -> None:
-    steps = [fix_feed_self_links, fix_embed_background, upgrade_embed_player, build_player_index]
+    steps = [
+        fix_feed_self_links,
+        fix_embed_background,
+        upgrade_embed_player,
+        build_player_index,
+        upgrade_m3u_playlists,
+    ]
     for fn in steps:
         fn(build_dir)
 
