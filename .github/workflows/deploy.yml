@@ -29,8 +29,24 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: 安装 ffmpeg（Faircamp 转码需要）
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: 准备 ffmpeg（Faircamp 转码需要）
+        timeout-minutes: 8
+        run: |
+          set -e
+          if command -v ffmpeg >/dev/null 2>&1; then
+            echo "系统已自带 ffmpeg:"
+            ffmpeg -version | head -n 1
+          else
+            echo "未检测到 ffmpeg，尝试 apt 安装（失败则使用静态版）"
+            if ! (sudo apt-get update -y && sudo apt-get install -y ffmpeg); then
+              echo "apt 安装失败，改用静态 ffmpeg"
+              curl -4 -fsSL -o /tmp/ffmpeg.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+              mkdir -p /tmp/ffmpeg-static
+              tar -xJf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg-static --strip-components=1
+              echo "/tmp/ffmpeg-static" >> "$GITHUB_PATH"
+            fi
+          fi
+          command -v ffmpeg
 
       - name: 下载 Faircamp 2.0.1 CLI
         run: |
