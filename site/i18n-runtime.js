@@ -96,6 +96,27 @@
             }
         }
 
+        function ensureSubscribeNote() {
+            var feedButtons = Array.prototype.slice.call(document.querySelectorAll('button[data-copy]'))
+                .filter(function (button) {
+                    var content = button.getAttribute('data-content') || '';
+                    return /(?:feed\.atom|feed\.rss)(?:$|[?#])/.test(content);
+                });
+            if (!feedButtons.length) return;
+            if (document.querySelector('.subscribe-note')) return;
+
+            var lastButton = feedButtons[feedButtons.length - 1];
+            var split = lastButton.closest ? lastButton.closest('.embed_split') : null;
+            var entry = split ? split.parentElement : lastButton.parentElement;
+            if (!entry || !entry.parentNode) return;
+
+            var note = document.createElement('p');
+            note.className = 'subscribe-note';
+            note.setAttribute('data-i18n', 'subscribe.copy_hint');
+            note.textContent = t('subscribe.copy_hint', '点击「复制链接」，粘贴到任意 RSS / Atom 阅读器即可订阅。');
+            entry.parentNode.insertBefore(note, entry.nextSibling);
+        }
+
         function applyTranslations() {
             document.querySelectorAll('[data-i18n]').forEach(function (element) {
                 var key = element.getAttribute('data-i18n');
@@ -185,12 +206,14 @@
 
         document.documentElement.setAttribute('lang', currentLanguage.html_lang || currentLanguage.code);
         buildSwitcher();
+        ensureSubscribeNote();
         applyTranslations();
 
         // 无刷新跳转后重新插入切换器并翻译新内容
         document.addEventListener('pjax:load', function () {
             document.documentElement.setAttribute('lang', currentLanguage.html_lang || currentLanguage.code);
             buildSwitcher();
+            ensureSubscribeNote();
             applyTranslations();
         });
 

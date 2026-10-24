@@ -39,6 +39,7 @@
     "faircamp.pause": "Pause",
     "faircamp.volume": "Volume",
     "faircamp.mute": "Mute",
-    "faircamp.unmute": "Unmute"
+    "faircamp.unmute": "Unmute",
+    "subscribe.copy_hint": "Click “Copy link” and paste it into any RSS / Atom reader to subscribe."
   }
 }

@@ -39,6 +39,7 @@
     "faircamp.pause": "暂停",
     "faircamp.volume": "音量",
     "faircamp.mute": "静音",
-    "faircamp.unmute": "取消静音"
+    "faircamp.unmute": "取消静音",
+    "subscribe.copy_hint": "点击「复制链接」，粘贴到任意 RSS / Atom 阅读器即可订阅。"
   }
 }

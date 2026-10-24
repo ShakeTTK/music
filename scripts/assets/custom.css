@@ -326,6 +326,14 @@ header #logo > svg {
     }
 }
 
+/* 订阅页复制按钮下方的使用说明 */
+.subscribe-note {
+    margin: 1.15rem 0 .25rem;
+    color: var(--f3);
+    font-size: .92rem;
+    line-height: 1.6;
+}
+
 /* 页脚更安静一点 */
 footer {
     opacity: .86;
