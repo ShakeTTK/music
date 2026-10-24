@@ -379,6 +379,50 @@ header #logo > svg {
     line-height: 1.6;
 }
 
+/* 语言切换右侧的「随机播放」按钮 */
+.random-play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-inline-start: .35rem;
+    padding: 0;
+    border: 1px solid var(--b3);
+    border-radius: 50%;
+    background: var(--b1-80);
+    color: var(--f3);
+    cursor: pointer;
+    vertical-align: middle;
+    transition: color .18s ease, border-color .18s ease, background-color .18s ease;
+}
+
+.random-play:hover,
+.random-play:focus-visible {
+    color: var(--f1);
+    border-color: var(--b-acc);
+    background: var(--b2);
+}
+
+.random-play:focus-visible {
+    outline: 2px solid var(--f1);
+    outline-offset: 2px;
+}
+
+.random-play svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+}
+
+@media (max-width: 560px) {
+    .random-play {
+        width: 1.85rem;
+        height: 1.85rem;
+        margin-inline-start: .25rem;
+    }
+}
+
 /* 页脚更安静一点 */
 footer {
     opacity: .86;

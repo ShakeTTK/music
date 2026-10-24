@@ -41,6 +41,7 @@
     "faircamp.mute": "Mute",
     "faircamp.unmute": "Unmute",
     "subscribe.copy_hint": "Click “Copy link” and paste it into any RSS / Atom reader to subscribe.",
-    "subscribe.back_home": "Back to home"
+    "subscribe.back_home": "Back to home",
+    "random.play": "Play a random track"
   }
 }

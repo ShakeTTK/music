@@ -521,6 +521,55 @@
             playIndex(index);
         }
 
+        function playRandom() {
+            if (!state.tracks.length) return false;
+            var current = currentTrack();
+            var pool = state.tracks.filter(function (track) {
+                return !current || track.slug !== current.slug;
+            });
+            if (!pool.length) pool = state.tracks;
+
+            var chosen = pool[Math.floor(Math.random() * pool.length)];
+            var index = state.playlist.indexOf(chosen.slug);
+            if (index === -1) {
+                state.playlist.push(chosen.slug);
+                index = state.playlist.length - 1;
+            }
+            saveState();
+            playIndex(index);
+            if (panel && !panel.classList.contains('is-open')) openPanel();
+            return true;
+        }
+
+        function buildRandomButton() {
+            if (!state.tracks.length) return;
+            var host = document.querySelector('header > div') || document.querySelector('header');
+            if (!host) return;
+            if (document.getElementById('random-play')) return;
+
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.id = 'random-play';
+            button.className = 'random-play';
+            button.setAttribute('aria-label', '随机播放一首');
+            button.setAttribute('title', '随机播放一首');
+            button.setAttribute('data-i18n-aria', 'random.play');
+            button.setAttribute('data-i18n-title', 'random.play');
+            button.innerHTML =
+                '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="m4 4 5 5"/>' +
+                '</svg>';
+            button.addEventListener('click', function () { playRandom(); });
+
+            var switcher = host.querySelector('.site-lang');
+            if (switcher && switcher.parentNode === host) {
+                host.insertBefore(button, switcher.nextSibling);
+            } else {
+                host.appendChild(button);
+            }
+            if (window.SiteI18n) window.SiteI18n.apply();
+        }
+
         function init(data) {
             state.tracks = data.tracks.filter(function (track) { return track && track.slug && track.url; });
             state.trackMap = {};
@@ -537,9 +586,19 @@
             render();
             updateProgress();
             injectPageVolume();
+            buildRandomButton();
         }
 
-        document.addEventListener('pjax:load', injectPageVolume);
+        window.MusicPlayer = {
+            playRandom: playRandom,
+            playSlug: playSlugNow,
+            isReady: function () { return state.tracks.length > 0; }
+        };
+
+        document.addEventListener('pjax:load', function () {
+            injectPageVolume();
+            buildRandomButton();
+        });
         injectPageVolume();
 
         fetch(indexUrl)
