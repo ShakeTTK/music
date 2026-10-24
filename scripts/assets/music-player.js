@@ -91,6 +91,7 @@
                 '    <button type="button" id="playlist-prev" class="playlist-controls__btn" aria-label="上一首">' + ICONS.prev + '</button>' +
                 '    <button type="button" id="playlist-play" class="playlist-controls__btn playlist-controls__btn--play" aria-label="播放">' + ICONS.play + '</button>' +
                 '    <button type="button" id="playlist-next" class="playlist-controls__btn" aria-label="下一首">' + ICONS.next + '</button>' +
+                '    <button type="button" id="playlist-select-all" class="playlist-controls__selectall">全选</button>' +
                 '    <div class="playlist-modes" role="group" aria-label="播放模式">' +
                 '      <button type="button" data-mode="order">顺序</button>' +
                 '      <button type="button" data-mode="single">单曲</button>' +
@@ -121,6 +122,7 @@
             widget.querySelector('#playlist-prev').addEventListener('click', playPrevious);
             widget.querySelector('#playlist-next').addEventListener('click', function () { playNext(false); });
             widget.querySelector('#playlist-clear').addEventListener('click', clearPlaylist);
+            widget.querySelector('#playlist-select-all').addEventListener('click', toggleSelectAll);
 
             widget.querySelectorAll('.playlist-modes button').forEach(function (button) {
                 button.addEventListener('click', function () {
@@ -192,6 +194,18 @@
             state.current = -1;
             audio.pause();
             audio.removeAttribute('src');
+            saveState();
+            render();
+        }
+
+        function toggleSelectAll() {
+            if (!state.tracks.length) return;
+            if (state.playlist.length === state.tracks.length) {
+                clearPlaylist();
+                return;
+            }
+            state.playlist = state.tracks.map(function (track) { return track.slug; });
+            if (state.current < 0) state.current = 0;
             saveState();
             render();
         }
@@ -282,6 +296,13 @@
 
             var playBtn = widget.querySelector('#playlist-play');
             if (playBtn) playBtn.innerHTML = audio.paused ? ICONS.play : ICONS.pause;
+
+            var selectAllBtn = widget.querySelector('#playlist-select-all');
+            if (selectAllBtn) {
+                var allSelected = state.tracks.length > 0 && state.playlist.length === state.tracks.length;
+                selectAllBtn.textContent = allSelected ? '取消全选' : '全选';
+                selectAllBtn.classList.toggle('is-active', allSelected);
+            }
 
             widget.querySelectorAll('.playlist-modes button').forEach(function (button) {
                 button.classList.toggle('is-active', button.getAttribute('data-mode') === state.mode);

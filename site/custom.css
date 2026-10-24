@@ -228,9 +228,14 @@ header #logo > svg {
     row-gap: .4rem;
 }
 
-/* 首页 / 艺术家页的作品标题与作者名居中 */
+/* 首页 / 艺术家页的作品标题居中；列表页不显示作者名（详情页保留） */
 .page_grid .release {
     text-align: center;
+}
+
+.page_grid .release .track_artists,
+.page_grid .release .release_artists {
+    display: none;
 }
 
 /* 页脚更安静一点 */
@@ -464,6 +469,20 @@ footer {
 }
 
 .playlist-controls__clear:hover { color: var(--f1); }
+
+.playlist-controls__selectall {
+    border: 0;
+    background: transparent;
+    color: var(--f3);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 2px;
+}
+
+.playlist-controls__selectall:hover,
+.playlist-controls__selectall.is-active {
+    color: var(--f1);
+}
 
 .playlist-list {
     flex: 1 1 auto;
