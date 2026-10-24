@@ -96,6 +96,45 @@
             }
         }
 
+        function hasFeedCopyButtons() {
+            return Array.prototype.some.call(document.querySelectorAll('button[data-copy]'), function (button) {
+                var content = button.getAttribute('data-content') || '';
+                return /(?:feed\.atom|feed\.rss)(?:$|[?#])/.test(content);
+            });
+        }
+
+        function ensureSubscribeBack() {
+            if (!hasFeedCopyButtons()) return;
+            if (document.querySelector('.subscribe-back')) return;
+
+            var heading = document.querySelector('main h1') || document.querySelector('h1');
+            if (!heading) return;
+
+            var row = heading.parentElement;
+            if (!row || !row.classList.contains('subscribe-heading')) {
+                row = document.createElement('div');
+                row.className = 'subscribe-heading';
+                heading.parentNode.insertBefore(row, heading);
+                row.appendChild(heading);
+            }
+
+            var link = document.createElement('a');
+            link.className = 'subscribe-back';
+            link.setAttribute('href', '../../');
+            link.setAttribute('aria-label', '返回主页');
+            link.setAttribute('title', '返回主页');
+            link.setAttribute('data-i18n-aria', 'subscribe.back_home');
+            link.setAttribute('data-i18n-title', 'subscribe.back_home');
+            link.innerHTML =
+                '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M19 12H5"/><path d="m11 18-6-6 6-6"/>' +
+                '</svg>';
+
+            var logo = document.querySelector('header #logo');
+            if (logo && logo.getAttribute('href')) link.setAttribute('href', logo.getAttribute('href'));
+            row.appendChild(link);
+        }
+
         function ensureSubscribeNote() {
             var feedButtons = Array.prototype.slice.call(document.querySelectorAll('button[data-copy]'))
                 .filter(function (button) {
@@ -206,6 +245,7 @@
 
         document.documentElement.setAttribute('lang', currentLanguage.html_lang || currentLanguage.code);
         buildSwitcher();
+        ensureSubscribeBack();
         ensureSubscribeNote();
         applyTranslations();
 
@@ -213,6 +253,7 @@
         document.addEventListener('pjax:load', function () {
             document.documentElement.setAttribute('lang', currentLanguage.html_lang || currentLanguage.code);
             buildSwitcher();
+            ensureSubscribeBack();
             ensureSubscribeNote();
             applyTranslations();
         });

@@ -326,6 +326,51 @@ header #logo > svg {
     }
 }
 
+/* 订阅页标题右侧的返回主页箭头 */
+.subscribe-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+}
+
+.subscribe-heading h1 {
+    margin: 0;
+}
+
+.subscribe-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--b3);
+    border-radius: 50%;
+    background: var(--b1-80);
+    color: var(--f3);
+    text-decoration: none;
+    transition: color .18s ease, border-color .18s ease, background-color .18s ease;
+}
+
+.subscribe-back:hover,
+.subscribe-back:focus-visible {
+    color: var(--f1);
+    border-color: var(--b-acc);
+    background: var(--b2);
+}
+
+.subscribe-back:focus-visible {
+    outline: 2px solid var(--f1);
+    outline-offset: 2px;
+}
+
+.subscribe-back svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    display: block;
+}
+
 /* 订阅页复制按钮下方的使用说明 */
 .subscribe-note {
     margin: 1.15rem 0 .25rem;
