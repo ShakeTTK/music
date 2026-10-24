@@ -422,6 +422,7 @@ def prepare_assets():
     copied = []
     wanted = [
         ("custom.css", "custom.css", "css", '<link href="{{custom.css}}" rel="stylesheet">'),
+        ("i18n-runtime.js", "i18n-runtime.js", "js", '<script src="{{i18n-runtime.js}}" defer></script>'),
         ("ripples/jquery.min.js", "jquery.min.js", "js", '<script src="{{jquery.min.js}}" defer></script>'),
         ("ripples/jquery.ripples.min.js", "jquery.ripples.min.js", "js", '<script src="{{jquery.ripples.min.js}}" defer></script>'),
         ("water.js", "water.js", "js", '<script src="{{water.js}}" defer></script>'),
@@ -492,6 +493,68 @@ def write_site_config_js(cfg):
     return "site-config.js"
 
 
+def write_i18n_js():
+    """把 content/i18n/*.json 打包成前端可读取的 i18n.js。
+
+    每种语言一个 JSON 文件，文件名即语言代码（如 zh.json / en.json）；
+    新增语言只需新增文件，不需要改代码。
+    """
+    i18n_dir = ROOT / "content" / "i18n"
+    files = sorted(i18n_dir.glob("*.json")) if i18n_dir.exists() else []
+    if not files:
+        warn("content/i18n/ 下没有语言文件，界面保持默认中文")
+        return None
+
+    languages = []
+    seen = set()
+    for path in files:
+        code = path.stem
+        if code in seen:
+            warn(f"多语言：语言代码 {code} 重复，已跳过 {path.name}")
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8-sig"))
+        except Exception as exc:  # noqa: BLE001
+            warn(f"多语言：{path.name} 不是合法 JSON，已跳过: {exc}")
+            continue
+        raw_strings = data.get("strings")
+        if not isinstance(raw_strings, dict):
+            warn(f"多语言：{path.name} 缺少 strings 对象，已跳过")
+            continue
+        strings = {str(k): str(v) for k, v in raw_strings.items() if isinstance(v, str)}
+        if not strings:
+            warn(f"多语言：{path.name} 的 strings 为空，已跳过")
+            continue
+        seen.add(code)
+        languages.append({
+            "code": code,
+            "name": str(data.get("name") or code),
+            "short": str(data.get("short") or code.upper()),
+            "html_lang": str(data.get("html_lang") or code),
+            "strings": strings,
+        })
+
+    if not languages:
+        warn("多语言：没有可用的语言文件，界面保持默认中文")
+        return None
+
+    default_code = "zh" if any(lang["code"] == "zh" for lang in languages) else languages[0]["code"]
+    default_strings = next(lang["strings"] for lang in languages if lang["code"] == default_code)
+    for lang in languages:
+        missing = sorted(set(default_strings) - set(lang["strings"]))
+        if missing:
+            preview = "、".join(missing[:6]) + ("…" if len(missing) > 6 else "")
+            warn(f"多语言：{lang['code']} 缺少 {len(missing)} 条文案（{preview}），将回退到 {default_code}")
+
+    payload = {"default": default_code, "languages": languages}
+    (SITE / "i18n.js").write_text(
+        "window.__SITE_I18N__ = " + json.dumps(payload, ensure_ascii=False) + ";\n",
+        encoding="utf-8",
+    )
+    log(f"多语言文案: {len(languages)} 种语言（{', '.join(lang['code'] for lang in languages)}），默认 {default_code}")
+    return "i18n.js"
+
+
 def write_player_index_placeholder():
     """临时歌单播放器的索引占位文件。
 
@@ -517,7 +580,7 @@ def install_logo(cfg):
     return None
 
 
-def write_site_manifest(cfg, asset_files, css_tags, js_tags, has_config_js, logo_file=None, water_bg_file=None):
+def write_site_manifest(cfg, asset_files, css_tags, js_tags, has_config_js, logo_file=None, water_bg_file=None, i18n_file=None):
     mode = cfg["theme"]["mode"]
     dark_bg = cfg.get("dark_background_rel") or "images/1.png"
     lines = [
@@ -560,6 +623,8 @@ def write_site_manifest(cfg, asset_files, css_tags, js_tags, has_config_js, logo
     metadata_tags.append('<meta name="music-index" content="{{player-index.json}}">')
     if has_config_js:
         metadata_tags.append('<script src="{{site-config.js}}" defer></script>')
+    if i18n_file:
+        metadata_tags.append('<script src="{{i18n.js}}" defer></script>')
     metadata_tags += js_tags
     lines += ["-- metadata"] + metadata_tags + ["-- metadata"]
     (SITE / "site.eno").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -654,10 +719,13 @@ def main():
 
     asset_files, css_tags, js_tags = run_module("前端资源", prepare_assets, fallback=([], [], []))
     config_js = run_module("前端运行时配置", lambda: write_site_config_js(config), fallback=None)
+    i18n_file = run_module("多语言文案", write_i18n_js, fallback=None)
     logo_file = run_module("站点 LOGO", lambda: install_logo(config), fallback=None)
     player_index = run_module("播放器索引", write_player_index_placeholder, fallback=None)
     if config_js:
         asset_files = list(asset_files) + [config_js]
+    if i18n_file:
+        asset_files = list(asset_files) + [i18n_file]
     if logo_file:
         asset_files = list(asset_files) + [logo_file]
     if water_bg:
@@ -666,7 +734,7 @@ def main():
         asset_files = list(asset_files) + [player_index]
     run_module(
         "站点 site.eno",
-        lambda: write_site_manifest(config, asset_files, css_tags, js_tags, bool(config_js), logo_file, water_bg),
+        lambda: write_site_manifest(config, asset_files, css_tags, js_tags, bool(config_js), logo_file, water_bg, i18n_file),
         required=True,
     )
 

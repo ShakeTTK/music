@@ -54,6 +54,14 @@
         audio.preload = 'metadata';
         audio.volume = state.volume;
 
+        function tr(key, fallback) {
+            if (window.SiteI18n && typeof window.SiteI18n.t === 'function') {
+                var value = window.SiteI18n.t(key, fallback);
+                if (value !== undefined && value !== null && value !== '') return value;
+            }
+            return fallback;
+        }
+
         var widget = null;
         var panel = null;
         var listEl = null;
@@ -79,17 +87,17 @@
             widget.innerHTML =
                 '<button type="button" id="playlist-toggle" class="playlist-toggle" aria-expanded="false" aria-controls="playlist-panel">' +
                 '  <span class="playlist-toggle__icon" aria-hidden="true">' + ICONS.play + '</span>' +
-                '  <span>歌单</span>' +
+                '  <span data-i18n="player.button">歌单</span>' +
                 '  <span class="playlist-toggle__count" id="playlist-count">0</span>' +
                 '</button>' +
-                '<section id="playlist-panel" class="playlist-panel" aria-label="临时歌单播放器">' +
+                '<section id="playlist-panel" class="playlist-panel" data-i18n-aria="player.panel_aria" aria-label="临时歌单播放器">' +
                 '  <header class="playlist-panel__header">' +
-                '    <h2 class="playlist-panel__title">临时歌单</h2>' +
-                '    <label class="playlist-opacity" title="调整歌单背景不透明度">' +
-                '      <span class="playlist-opacity__label">背景</span>' +
-                '      <input type="range" id="playlist-opacity" min="20" max="100" step="2" value="100" aria-label="临时歌单背景不透明度">' +
+                '    <h2 class="playlist-panel__title" data-i18n="player.title">临时歌单</h2>' +
+                '    <label class="playlist-opacity" data-i18n-title="player.opacity_title" title="调整歌单背景不透明度">' +
+                '      <span class="playlist-opacity__label" data-i18n="player.background">背景</span>' +
+                '      <input type="range" id="playlist-opacity" min="20" max="100" step="2" value="100" data-i18n-aria="player.opacity_title" aria-label="临时歌单背景不透明度">' +
                 '    </label>' +
-                '    <button type="button" class="playlist-panel__close" aria-label="关闭歌单">×</button>' +
+                '    <button type="button" class="playlist-panel__close" data-i18n-aria="player.close" aria-label="关闭歌单">×</button>' +
                 '  </header>' +
                 '  <div class="playlist-now">' +
                 '    <div class="playlist-now__cover"><img id="playlist-cover" alt="" width="56" height="56"></div>' +
@@ -97,29 +105,29 @@
                 '      <div class="playlist-now__title" id="playlist-title">未选择歌曲</div>' +
                 '      <div class="playlist-now__artist" id="playlist-artist"></div>' +
                 '      <div class="playlist-volume">' +
-                '        <span class="playlist-volume__label">音量</span>' +
-                '        <input type="range" id="playlist-volume" min="0" max="100" step="1" value="100" aria-label="音量">' +
+                '        <span class="playlist-volume__label" data-i18n="player.volume">音量</span>' +
+                '        <input type="range" id="playlist-volume" min="0" max="100" step="1" value="100" data-i18n-aria="player.volume" aria-label="音量">' +
                 '      </div>' +
                 '      <div class="playlist-progress">' +
-                '        <input type="range" id="playlist-seek" min="0" max="1000" step="1" value="0" aria-label="播放进度">' +
+                '        <input type="range" id="playlist-seek" min="0" max="1000" step="1" value="0" data-i18n-aria="player.seek" aria-label="播放进度">' +
                 '        <span class="playlist-progress__time" id="playlist-time">0:00 / 0:00</span>' +
                 '      </div>' +
                 '    </div>' +
                 '  </div>' +
                 '  <div class="playlist-controls">' +
-                '    <button type="button" id="playlist-prev" class="playlist-controls__btn" aria-label="上一首">' + ICONS.prev + '</button>' +
-                '    <button type="button" id="playlist-play" class="playlist-controls__btn playlist-controls__btn--play" aria-label="播放">' + ICONS.play + '</button>' +
-                '    <button type="button" id="playlist-next" class="playlist-controls__btn" aria-label="下一首">' + ICONS.next + '</button>' +
+                '    <button type="button" id="playlist-prev" class="playlist-controls__btn" data-i18n-aria="player.prev" aria-label="上一首">' + ICONS.prev + '</button>' +
+                '    <button type="button" id="playlist-play" class="playlist-controls__btn playlist-controls__btn--play" data-i18n-aria="player.play" aria-label="播放">' + ICONS.play + '</button>' +
+                '    <button type="button" id="playlist-next" class="playlist-controls__btn" data-i18n-aria="player.next" aria-label="下一首">' + ICONS.next + '</button>' +
                 '    <button type="button" id="playlist-select-all" class="playlist-controls__selectall">全选</button>' +
-                '    <div class="playlist-modes" role="group" aria-label="播放模式">' +
-                '      <button type="button" data-mode="order">顺序</button>' +
-                '      <button type="button" data-mode="single">单曲</button>' +
-                '      <button type="button" data-mode="shuffle">随机</button>' +
+                '    <div class="playlist-modes" role="group" data-i18n-aria="player.modes_aria" aria-label="播放模式">' +
+                '      <button type="button" data-mode="order" data-i18n="player.mode_order">顺序</button>' +
+                '      <button type="button" data-mode="single" data-i18n="player.mode_single">单曲</button>' +
+                '      <button type="button" data-mode="shuffle" data-i18n="player.mode_shuffle">随机</button>' +
                 '    </div>' +
-                '    <button type="button" id="playlist-clear" class="playlist-controls__clear">清空</button>' +
+                '    <button type="button" id="playlist-clear" class="playlist-controls__clear" data-i18n="player.clear">清空</button>' +
                 '  </div>' +
                 '  <div class="playlist-list" id="playlist-list"></div>' +
-                '  <p class="playlist-hint">单击勾选；双击歌名立即加入并播放；未勾选时点播放会播放全部。</p>' +
+                '  <p class="playlist-hint" data-i18n="player.hint">单击勾选；双击歌名立即加入并播放；未勾选时点播放会播放全部。</p>' +
                 '</section>';
             document.body.appendChild(widget);
 
@@ -200,6 +208,12 @@
             audio.addEventListener('play', render);
             audio.addEventListener('pause', render);
             audio.addEventListener('ended', function () { playNext(true); });
+
+            document.addEventListener('site:languagechange', function () {
+                if (!panel) return;
+                render();
+                updateProgress();
+            });
         }
 
         function openPanel() {
@@ -348,7 +362,7 @@
             var selectAllBtn = widget.querySelector('#playlist-select-all');
             if (selectAllBtn) {
                 var allSelected = state.tracks.length > 0 && state.playlist.length === state.tracks.length;
-                selectAllBtn.textContent = allSelected ? '取消全选' : '全选';
+                selectAllBtn.textContent = allSelected ? tr('player.unselect_all', '取消全选') : tr('player.select_all', '全选');
                 selectAllBtn.classList.toggle('is-active', allSelected);
             }
 
@@ -360,7 +374,7 @@
             var coverEl = widget.querySelector('#playlist-cover');
             var titleEl = widget.querySelector('#playlist-title');
             var artistEl = widget.querySelector('#playlist-artist');
-            if (titleEl) titleEl.textContent = track ? track.title : '未选择歌曲';
+            if (titleEl) titleEl.textContent = track ? track.title : tr('player.not_selected', '未选择歌曲');
             if (artistEl) artistEl.textContent = track ? (track.artist || '') : '';
             if (coverEl) {
                 if (track && track.cover) {
@@ -481,8 +495,8 @@
             wrap.className = 'page-volume';
             wrap.id = 'page-volume';
             wrap.innerHTML =
-                '<span class="page-volume__label">音量</span>' +
-                '<input type="range" min="0" max="100" step="1" aria-label="音量">';
+                '<span class="page-volume__label" data-i18n="page.volume">音量</span>' +
+                '<input type="range" min="0" max="100" step="1" data-i18n-aria="page.volume" aria-label="音量">';
 
             var listen = primary.querySelector('button.listen');
             if (listen && listen.parentNode === primary) primary.insertBefore(wrap, listen.nextSibling);
@@ -493,6 +507,7 @@
             input.addEventListener('input', function () {
                 setVolume(parseFloat(this.value) / 100);
             });
+            if (window.SiteI18n) window.SiteI18n.apply();
         }
 
         function playSlugNow(slug) {
@@ -515,6 +530,7 @@
             else state.current = Math.min(Math.max(state.current, 0), state.playlist.length - 1);
 
             buildUI();
+            if (window.SiteI18n) window.SiteI18n.apply();
             applyPanelOpacity(state.panelOpacity);
             setVolume(state.volume, false);
             renderList();

@@ -27,6 +27,7 @@ track.download_access: disabled
 
 assets:
 - custom.css
+- i18n-runtime.js
 - jquery.min.js
 - jquery.ripples.min.js
 - water.js
@@ -35,6 +36,7 @@ assets:
 - comments.js
 - analytics.js
 - site-config.js
+- i18n.js
 - logo.svg
 - water-bg.jpg
 - player-index.json
@@ -45,6 +47,8 @@ assets:
 <meta name="water-bg" content="{{water-bg.jpg}}">
 <meta name="music-index" content="{{player-index.json}}">
 <script src="{{site-config.js}}" defer></script>
+<script src="{{i18n.js}}" defer></script>
+<script src="{{i18n-runtime.js}}" defer></script>
 <script src="{{jquery.min.js}}" defer></script>
 <script src="{{jquery.ripples.min.js}}" defer></script>
 <script src="{{water.js}}" defer></script>

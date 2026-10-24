@@ -44,6 +44,14 @@
         var strength = parseFloat(cfg.strength);
         if (isNaN(strength)) strength = 1.2;
 
+        function tr(key, fallback) {
+            if (window.SiteI18n && typeof window.SiteI18n.t === 'function') {
+                var value = window.SiteI18n.t(key, fallback);
+                if (value !== undefined && value !== null && value !== '') return value;
+            }
+            return fallback;
+        }
+
         var active = false;
         var layer = null;
         var $layer = null;
@@ -139,10 +147,12 @@
 
         function updateButton() {
             if (!button) return;
+            var enableText = tr('water.enable', '开启背景水波效果');
+            var disableText = tr('water.disable', '关闭背景水波效果');
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
-            button.setAttribute('aria-label', active ? '关闭背景水波效果' : '开启背景水波效果');
-            button.title = active ? '关闭背景水波效果' : '开启背景水波效果';
-            if (label) label.textContent = active ? '水波·开' : '水波·关';
+            button.setAttribute('aria-label', active ? disableText : enableText);
+            button.title = active ? disableText : enableText;
+            if (label) label.textContent = active ? tr('water.on', '水波·开') : tr('water.off', '水波·关');
         }
 
         function enable(save) {
@@ -198,6 +208,8 @@
 
         buildButton();
         ensureLayer();
+
+        document.addEventListener('site:languagechange', updateButton);
 
         var saved = null;
         try { saved = window.localStorage.getItem(STORAGE_KEY); } catch (error) { saved = null; }

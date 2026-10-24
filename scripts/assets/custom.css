@@ -331,6 +331,51 @@ footer {
     opacity: .86;
 }
 
+/* 顶部语言切换（文案来自 content/i18n/） */
+.site-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: .1rem;
+    margin-inline-start: .55rem;
+    padding: .12rem;
+    border: 1px solid var(--b3);
+    border-radius: 999px;
+    background: var(--b1-80);
+    vertical-align: middle;
+}
+
+.site-lang button {
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--f3);
+    font: inherit;
+    font-size: .78em;
+    line-height: 1;
+    padding: .28rem .45rem;
+    cursor: pointer;
+}
+
+.site-lang button:hover {
+    color: var(--f1);
+}
+
+.site-lang button[aria-pressed="true"] {
+    background: var(--b2);
+    color: var(--f1);
+}
+
+@media (max-width: 560px) {
+    .site-lang {
+        margin-inline-start: .3rem;
+    }
+
+    .site-lang button {
+        font-size: .74em;
+        padding: .22rem .35rem;
+    }
+}
+
 /* ---------------------------------------------------------------------
    5) 临时歌单播放器
    --------------------------------------------------------------------- */
