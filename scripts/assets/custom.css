@@ -257,6 +257,75 @@ header #logo > svg {
     opacity: .9;
 }
 
+/* 右侧中间的水波开关 */
+.water-toggle {
+    position: fixed;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 950;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border: 1px solid var(--b3);
+    border-radius: 14px;
+    background: var(--b1-90);
+    color: var(--f2);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px hsl(0 0% 0% / 30%);
+    transition: color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.water-toggle:hover {
+    color: var(--f1);
+    border-color: var(--b-acc);
+}
+
+.water-toggle:focus-visible {
+    outline: 2px solid var(--f1);
+    outline-offset: 3px;
+}
+
+.water-toggle[aria-pressed="true"] {
+    color: var(--f1);
+    border-color: var(--b-acc);
+    box-shadow: 0 0 18px hsl(210 60% 45% / 35%);
+}
+
+.water-toggle[aria-pressed="false"] svg {
+    opacity: .45;
+}
+
+.water-toggle svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+
+.water-toggle__label {
+    font-size: 11px;
+    letter-spacing: .04em;
+}
+
+@media (max-width: 560px) {
+    .water-toggle {
+        right: 10px;
+        padding: 9px;
+        border-radius: 50%;
+    }
+
+    .water-toggle__label {
+        display: none;
+    }
+}
+
 /* 页脚更安静一点 */
 footer {
     opacity: .86;
