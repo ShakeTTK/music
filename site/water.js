@@ -3,8 +3,9 @@
    官网/仓库：https://github.com/sirxemic/jquery.ripples
 
    - 用 WebGL 对背景图做真实的水面波动与折射
-   - 鼠标滑动产生细小涟漪，点击/触摸产生明显波纹
    - 右侧中间提供「水波」开关，可随时开启/关闭，并记住选择
+   - 关闭水波时**保留背景图静态层**，只移除 WebGL 画布，
+     因此不会出现背景变黑/空白
    - 初始化失败、WebGL 不可用或用户开启"减少动态效果"时，
      自动保留 Faircamp 原本的静态背景（无副作用）
    ========================================================================= */
@@ -37,10 +38,69 @@
         var active = false;
         var layer = null;
         var $layer = null;
+        var ripplesInitialized = false;
         var ambientTimer = null;
         var lastDrop = 0;
         var button = null;
         var label = null;
+
+        function backgroundStyle() {
+            return 'url("' + backgroundUrl + '")';
+        }
+
+        function ensureLayer() {
+            if (layer && layer.parentNode) {
+                layer.style.backgroundImage = backgroundStyle();
+                document.documentElement.classList.add('ripples-enabled');
+                return true;
+            }
+            layer = document.createElement('div');
+            layer.id = 'ripples-background';
+            layer.setAttribute('aria-hidden', 'true');
+            layer.style.backgroundImage = backgroundStyle();
+            document.body.appendChild(layer);
+            document.documentElement.classList.add('ripples-enabled');
+            return true;
+        }
+
+        function initRipples() {
+            if (ripplesInitialized) return true;
+            if (!ensureLayer()) return false;
+            try {
+                $layer = $(layer);
+                $layer.ripples({
+                    resolution: 384,
+                    dropRadius: 24,
+                    perturbance: 0.03,
+                    interactive: false
+                });
+                ripplesInitialized = true;
+                return true;
+            } catch (initError) {
+                $layer = null;
+                ripplesInitialized = false;
+                if (layer) {
+                    layer.querySelectorAll('canvas').forEach(function (canvas) { canvas.remove(); });
+                    layer.style.backgroundImage = backgroundStyle();
+                }
+                return false;
+            }
+        }
+
+        function destroyRipples() {
+            if ($layer) {
+                try { $layer.ripples('destroy'); } catch (error) { /* 忽略 */ }
+            }
+            $layer = null;
+            ripplesInitialized = false;
+
+            // 无论 destroy 是否成功，都确保静态背景层仍然存在并显示原图
+            ensureLayer();
+            if (layer) {
+                layer.querySelectorAll('canvas').forEach(function (canvas) { canvas.remove(); });
+                layer.style.backgroundImage = backgroundStyle();
+            }
+        }
 
         function drop(x, y, radius, amount) {
             if (!$layer) return;
@@ -78,29 +138,7 @@
 
         function enable(save) {
             if (active) return true;
-            if (!layer) {
-                layer = document.createElement('div');
-                layer.id = 'ripples-background';
-                layer.setAttribute('aria-hidden', 'true');
-                layer.style.backgroundImage = 'url("' + backgroundUrl + '")';
-                document.body.appendChild(layer);
-                try {
-                    $layer = $(layer);
-                    $layer.ripples({
-                        resolution: 384,
-                        dropRadius: 24,
-                        perturbance: 0.03,
-                        interactive: false
-                    });
-                } catch (initError) {
-                    try { layer.remove(); } catch (error) { /* 忽略 */ }
-                    layer = null;
-                    $layer = null;
-                    return false;
-                }
-            }
-
-            document.documentElement.classList.add('ripples-enabled');
+            if (!initRipples()) return false;
             active = true;
             window.addEventListener('pointermove', onPointerMove, { passive: true });
             window.addEventListener('pointerdown', onPointerDown, { passive: true });
@@ -122,18 +160,8 @@
             }
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerdown', onPointerDown);
-            document.documentElement.classList.remove('ripples-enabled');
             active = false;
-
-            if ($layer) {
-                try { $layer.ripples('destroy'); } catch (error) { /* 忽略 */ }
-            }
-            if (layer && layer.parentNode) {
-                try { layer.remove(); } catch (error) { /* 忽略 */ }
-            }
-            layer = null;
-            $layer = null;
-
+            destroyRipples();
             if (save !== false) savePreference(false);
             updateButton();
         }
@@ -160,13 +188,15 @@
         }
 
         buildButton();
+        ensureLayer();
 
         var saved = null;
         try { saved = window.localStorage.getItem(STORAGE_KEY); } catch (error) { saved = null; }
+
         if (saved === '0') {
             updateButton();
         } else if (!enable(false)) {
-            // WebGL 初始化失败：不显示开关，保持静态背景
+            // WebGL 初始化失败：保留静态背景，不显示开关
             if (button && button.parentNode) button.remove();
             button = null;
             label = null;
