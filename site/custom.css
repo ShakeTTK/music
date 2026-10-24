@@ -536,6 +536,9 @@ footer {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* 中文/英文字体行高不同会让信息栏高度变化，这里固定住 */
+    line-height: 1.45;
+    min-height: 1.45em;
 }
 
 .playlist-now__artist {
@@ -545,6 +548,9 @@ footer {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* 未选歌时也预留作者名这一行的高度，避免选中歌曲后信息栏变高、列表下移 */
+    min-height: 1.5em;
+    line-height: 1.5;
 }
 
 .playlist-progress {
