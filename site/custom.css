@@ -750,3 +750,97 @@ footer {
         max-height: 70vh;
     }
 }
+
+/* ---------------------------------------------------------------------
+   6) 详情页（播放界面）的间距与移动端适配
+   --------------------------------------------------------------------- */
+
+/* 桌面/通用：标题、作者、操作按钮之间保持稳定节奏 */
+.abstract {
+    line-height: 1.55;
+}
+
+.abstract h1 {
+    margin-block: 0 .15rem;
+    line-height: 1.15;
+    letter-spacing: .01em;
+}
+
+.abstract .release_artists {
+    margin-top: .4rem;
+}
+
+.abstract .actions {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    column-gap: .85rem;
+    row-gap: .55rem;
+}
+
+.abstract .actions + .actions {
+    margin-top: .9rem;
+}
+
+.abstract .actions.primary {
+    margin-top: 1.1rem;
+}
+
+/* 播放器打开时给底部 fixed 播放器让出空间，避免内容/页脚被遮住 */
+body:has(.docked_player) .layout {
+    padding-bottom: 4.5rem;
+}
+
+/* 底部播放器打开时把「歌单」按钮上移，避免遮住播放条 */
+body:has(.docked_player) .playlist-toggle {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+}
+
+/* 手机/竖屏：封面、文字、按钮统一宽度和居中关系，避免文字被挤成窄列 */
+@media (max-width: 49.999rem) {
+    #content .page_split > .cover {
+        width: min(72vw, 17rem);
+        margin: 2rem auto 1.25rem;
+    }
+
+    #content .page_split > .abstract {
+        align-self: center;
+        width: calc(100% - var(--page-margin-h) * 2);
+        max-width: 32rem;
+        margin: 0 auto 1.75rem;
+        line-height: 1.6;
+    }
+
+    #content .page_split > .abstract h1 {
+        font-size: clamp(1.5rem, 7vw, 1.85rem);
+    }
+
+    #content .page_split > .abstract .actions {
+        column-gap: .7rem;
+        row-gap: .55rem;
+    }
+
+    #content .page_split > .abstract .actions.primary {
+        margin-top: 1.15rem;
+    }
+
+    #content .page_split > .abstract .release_artists {
+        margin-top: .45rem;
+    }
+
+    #content .tracks {
+        margin: 1.5rem var(--page-margin-h) 2rem;
+    }
+
+    body:has(.docked_player) .layout {
+        padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+    }
+
+    body:has(.docked_player) .playlist-toggle {
+        bottom: calc(4.4rem + 14px + env(safe-area-inset-bottom));
+    }
+
+    footer {
+        padding-bottom: max(.5rem, env(safe-area-inset-bottom));
+    }
+}
+
