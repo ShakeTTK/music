@@ -16,6 +16,8 @@
 
         var indexUrl = new URL(meta.getAttribute('content'), window.location.href).href;
         var STORAGE_KEY = 'music-site-player-v1';
+        var STORAGE_VOLUME = 'music-site-player-volume';
+        var STORAGE_PANEL_OPACITY = 'music-site-player-opacity';
 
         var ICONS = {
             play: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>',
@@ -29,7 +31,9 @@
             trackMap: {},
             playlist: [],
             mode: 'order',
-            current: -1
+            current: -1,
+            volume: 1,
+            panelOpacity: 1
         };
 
         try {
@@ -38,10 +42,17 @@
                 state.playlist = saved.playlist.filter(function (slug) { return typeof slug === 'string'; });
             }
             if (['order', 'single', 'shuffle'].indexOf(saved.mode) !== -1) state.mode = saved.mode;
+
+            var savedVolume = parseFloat(window.localStorage.getItem(STORAGE_VOLUME));
+            if (!isNaN(savedVolume)) state.volume = Math.min(1, Math.max(0, savedVolume));
+
+            var savedOpacity = parseFloat(window.localStorage.getItem(STORAGE_PANEL_OPACITY));
+            if (!isNaN(savedOpacity)) state.panelOpacity = Math.min(1, Math.max(0.2, savedOpacity));
         } catch (error) { /* 忽略存储异常 */ }
 
         var audio = new Audio();
         audio.preload = 'metadata';
+        audio.volume = state.volume;
 
         var widget = null;
         var panel = null;
@@ -74,6 +85,10 @@
                 '<section id="playlist-panel" class="playlist-panel" aria-label="临时歌单播放器">' +
                 '  <header class="playlist-panel__header">' +
                 '    <h2 class="playlist-panel__title">临时歌单</h2>' +
+                '    <label class="playlist-opacity" title="调整歌单背景不透明度">' +
+                '      <span class="playlist-opacity__label">背景</span>' +
+                '      <input type="range" id="playlist-opacity" min="20" max="100" step="2" value="100" aria-label="临时歌单背景不透明度">' +
+                '    </label>' +
                 '    <button type="button" class="playlist-panel__close" aria-label="关闭歌单">×</button>' +
                 '  </header>' +
                 '  <div class="playlist-now">' +
@@ -81,6 +96,10 @@
                 '    <div class="playlist-now__meta">' +
                 '      <div class="playlist-now__title" id="playlist-title">未选择歌曲</div>' +
                 '      <div class="playlist-now__artist" id="playlist-artist"></div>' +
+                '      <div class="playlist-volume">' +
+                '        <span class="playlist-volume__label">音量</span>' +
+                '        <input type="range" id="playlist-volume" min="0" max="100" step="1" value="100" aria-label="音量">' +
+                '      </div>' +
                 '      <div class="playlist-progress">' +
                 '        <input type="range" id="playlist-seek" min="0" max="1000" step="1" value="0" aria-label="播放进度">' +
                 '        <span class="playlist-progress__time" id="playlist-time">0:00 / 0:00</span>' +
@@ -100,7 +119,7 @@
                 '    <button type="button" id="playlist-clear" class="playlist-controls__clear">清空</button>' +
                 '  </div>' +
                 '  <div class="playlist-list" id="playlist-list"></div>' +
-                '  <p class="playlist-hint">勾选歌曲加入临时歌单；未勾选时点播放会播放全部。</p>' +
+                '  <p class="playlist-hint">单击勾选；双击歌名立即加入并播放；未勾选时点播放会播放全部。</p>' +
                 '</section>';
             document.body.appendChild(widget);
 
@@ -138,6 +157,35 @@
                     audio.currentTime = (parseFloat(seek.value) / 1000) * audio.duration;
                 }
             });
+
+            var opacityInput = widget.querySelector('#playlist-opacity');
+            opacityInput.value = String(Math.round(state.panelOpacity * 100));
+            opacityInput.addEventListener('input', function () {
+                setPanelOpacity(parseFloat(this.value) / 100);
+            });
+
+            var volumeInput = widget.querySelector('#playlist-volume');
+            volumeInput.value = String(Math.round(state.volume * 100));
+            volumeInput.addEventListener('input', function () {
+                setVolume(parseFloat(this.value) / 100);
+            });
+
+            // 双击歌名：加入歌单并立即播放
+            listEl.addEventListener('dblclick', function (event) {
+                var name = event.target && event.target.closest ? event.target.closest('.playlist-item__name') : null;
+                if (!name) return;
+                event.preventDefault();
+                var row = name.closest('.playlist-item');
+                var slug = row ? row.getAttribute('data-slug') : '';
+                if (slug) playSlugNow(slug);
+            });
+
+            // 让详情页 Faircamp 自带的音频也遵循这里的音量
+            document.addEventListener('play', function (event) {
+                var target = event.target;
+                if (!target || target.tagName !== 'AUDIO') return;
+                try { target.volume = state.volume; } catch (error) { /* 忽略 */ }
+            }, true);
 
             listEl.addEventListener('change', function (event) {
                 var input = event.target;
@@ -376,6 +424,88 @@
             listEl.appendChild(fragment);
         }
 
+        function persistSetting(key, value) {
+            try { window.localStorage.setItem(key, String(value)); } catch (error) { /* 忽略 */ }
+        }
+
+        function applyPanelOpacity(value) {
+            if (!panel) return;
+            var opacity = Math.min(1, Math.max(0.2, value));
+            panel.style.setProperty('--playlist-bg-opacity', String(opacity));
+            var input = widget ? widget.querySelector('#playlist-opacity') : null;
+            if (input) input.value = String(Math.round(opacity * 100));
+        }
+
+        function setPanelOpacity(value) {
+            var opacity = Math.min(1, Math.max(0.2, value));
+            state.panelOpacity = opacity;
+            applyPanelOpacity(opacity);
+            persistSetting(STORAGE_PANEL_OPACITY, opacity);
+        }
+
+        function setVolume(value, save) {
+            var volume = Math.min(1, Math.max(0, value));
+            if (isNaN(volume)) return;
+            state.volume = volume;
+            audio.volume = volume;
+
+            document.querySelectorAll('audio').forEach(function (element) {
+                try { element.volume = volume; } catch (error) { /* 忽略 */ }
+            });
+
+            if (widget) {
+                var playlistInput = widget.querySelector('#playlist-volume');
+                if (playlistInput) playlistInput.value = String(Math.round(volume * 100));
+            }
+            var pageInput = document.querySelector('#page-volume input');
+            if (pageInput) pageInput.value = String(Math.round(volume * 100));
+
+            if (save !== false) persistSetting(STORAGE_VOLUME, volume);
+        }
+
+        function injectPageVolume() {
+            var primary = document.querySelector('.actions.primary');
+            if (!primary) return;
+
+            var existing = document.getElementById('page-volume');
+            if (existing) {
+                if (existing.parentNode !== primary) existing.parentNode.removeChild(existing);
+                else {
+                    var existingInput = existing.querySelector('input');
+                    if (existingInput) existingInput.value = String(Math.round(state.volume * 100));
+                    return;
+                }
+            }
+
+            var wrap = document.createElement('div');
+            wrap.className = 'page-volume';
+            wrap.id = 'page-volume';
+            wrap.innerHTML =
+                '<span class="page-volume__label">音量</span>' +
+                '<input type="range" min="0" max="100" step="1" aria-label="音量">';
+
+            var listen = primary.querySelector('button.listen');
+            if (listen && listen.parentNode === primary) primary.insertBefore(wrap, listen.nextSibling);
+            else primary.appendChild(wrap);
+
+            var input = wrap.querySelector('input');
+            input.value = String(Math.round(state.volume * 100));
+            input.addEventListener('input', function () {
+                setVolume(parseFloat(this.value) / 100);
+            });
+        }
+
+        function playSlugNow(slug) {
+            if (!state.trackMap[slug]) return;
+            var index = state.playlist.indexOf(slug);
+            if (index === -1) {
+                state.playlist.push(slug);
+                index = state.playlist.length - 1;
+            }
+            saveState();
+            playIndex(index);
+        }
+
         function init(data) {
             state.tracks = data.tracks.filter(function (track) { return track && track.slug && track.url; });
             state.trackMap = {};
@@ -385,10 +515,16 @@
             else state.current = Math.min(Math.max(state.current, 0), state.playlist.length - 1);
 
             buildUI();
+            applyPanelOpacity(state.panelOpacity);
+            setVolume(state.volume, false);
             renderList();
             render();
             updateProgress();
+            injectPageVolume();
         }
+
+        document.addEventListener('pjax:load', injectPageVolume);
+        injectPageVolume();
 
         fetch(indexUrl)
             .then(function (response) { return response.ok ? response.json() : null; })

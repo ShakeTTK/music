@@ -388,12 +388,25 @@ footer {
     max-height: min(74vh, 680px);
     border: 1px solid var(--b3);
     border-radius: 18px;
-    background: var(--b1-90);
+    background: transparent;
+    isolation: isolate;
     color: var(--f1);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     box-shadow: 0 22px 60px hsl(0 0% 0% / 45%);
     overflow: hidden;
+}
+
+/* 单独一层背景，便于用滑杆只调整背景不透明度（不影响文字） */
+.playlist-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--b1-90);
+    opacity: var(--playlist-bg-opacity, 1);
+    pointer-events: none;
 }
 
 .playlist-panel.is-open { display: flex; }
@@ -411,6 +424,25 @@ footer {
     margin: 0;
     font-size: 16px;
     font-weight: 600;
+}
+
+.playlist-opacity {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    color: var(--f3);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.playlist-opacity input[type="range"] {
+    width: 74px;
+    accent-color: var(--b-acc);
+}
+
+.playlist-opacity__label {
+    white-space: nowrap;
 }
 
 .playlist-panel__close {
@@ -475,6 +507,26 @@ footer {
     align-items: center;
     gap: 8px;
     margin-top: 6px;
+}
+
+/* 音量滑杆：放在进度条上方右侧 */
+.playlist-volume {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 4px;
+    color: var(--f3);
+    font-size: 11px;
+}
+
+.playlist-volume input[type="range"] {
+    width: 96px;
+    accent-color: var(--b-acc);
+}
+
+.playlist-volume__label {
+    white-space: nowrap;
 }
 
 .playlist-progress input[type="range"] {
@@ -570,6 +622,45 @@ footer {
 .playlist-controls__selectall:hover,
 .playlist-controls__selectall.is-active {
     color: var(--f1);
+}
+
+/* 详情页「收听」右侧的音量调节 */
+.page-volume {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+    padding: 7px 11px;
+    border: 1px solid var(--b3);
+    border-radius: 999px;
+    background: var(--b1-90);
+    color: var(--f2);
+    font-size: 12px;
+    line-height: 1;
+}
+
+.page-volume input[type="range"] {
+    width: 82px;
+    accent-color: var(--b-acc);
+}
+
+.page-volume__label {
+    white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+    .page-volume {
+        margin-left: 6px;
+        padding: 5px 8px;
+    }
+
+    .page-volume input[type="range"] {
+        width: 64px;
+    }
+
+    .page-volume__label {
+        display: none;
+    }
 }
 
 .playlist-list {
