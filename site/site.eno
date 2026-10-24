@@ -31,6 +31,7 @@ assets:
 - jquery.ripples.min.js
 - water.js
 - music-player.js
+- navigation.js
 - comments.js
 - analytics.js
 - site-config.js
@@ -48,6 +49,7 @@ assets:
 <script src="{{jquery.ripples.min.js}}" defer></script>
 <script src="{{water.js}}" defer></script>
 <script src="{{music-player.js}}" defer></script>
+<script src="{{navigation.js}}" defer></script>
 <script src="{{comments.js}}" defer></script>
 <script src="{{analytics.js}}" defer></script>
 -- metadata

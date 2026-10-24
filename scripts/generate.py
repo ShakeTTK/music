@@ -426,6 +426,7 @@ def prepare_assets():
         ("ripples/jquery.ripples.min.js", "jquery.ripples.min.js", "js", '<script src="{{jquery.ripples.min.js}}" defer></script>'),
         ("water.js", "water.js", "js", '<script src="{{water.js}}" defer></script>'),
         ("music-player.js", "music-player.js", "js", '<script src="{{music-player.js}}" defer></script>'),
+        ("navigation.js", "navigation.js", "js", '<script src="{{navigation.js}}" defer></script>'),
         ("comments.js", "comments.js", "js", '<script src="{{comments.js}}" defer></script>'),
         ("analytics.js", "analytics.js", "js", '<script src="{{analytics.js}}" defer></script>'),
     ]

@@ -238,6 +238,25 @@ header #logo > svg {
     display: none;
 }
 
+/* 无刷新跳转的顶部进度条 */
+#pjax-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 0;
+    height: 2px;
+    background: var(--b-acc, #3b8fc4);
+    opacity: 0;
+    transition: width .25s ease, opacity .2s ease;
+    pointer-events: none;
+}
+
+#pjax-progress.is-loading {
+    width: 70%;
+    opacity: .9;
+}
+
 /* 页脚更安静一点 */
 footer {
     opacity: .86;
