@@ -25,10 +25,19 @@
         }
 
         var meta = document.querySelector('meta[name="water-bg"]');
-        var backgroundUrl = meta ? meta.getAttribute('content') : '';
-        if (!backgroundUrl) {
+        var rawBackgroundUrl = meta ? meta.getAttribute('content') : '';
+        if (!rawBackgroundUrl) {
             if (window.console && console.info) console.info('[water] 缺少水波背景图，使用静态背景');
             return;
+        }
+
+        // 必须转成绝对地址：站内无刷新跳转后当前页面路径会变化，
+        // 相对地址会被重新解析到错误目录，导致背景图 404、背景变黑。
+        var backgroundUrl = rawBackgroundUrl;
+        try {
+            backgroundUrl = new URL(rawBackgroundUrl, window.location.href).href;
+        } catch (error) {
+            backgroundUrl = rawBackgroundUrl;
         }
 
         var STORAGE_KEY = 'music-site-water-enabled';
