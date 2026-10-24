@@ -116,6 +116,13 @@
                 throw new Error('页面结构不兼容，回退整页跳转');
             }
             currentLayout.replaceWith(document.importNode(newLayout, true));
+
+            // Faircamp 把 SVG 图标模板放在 .layout 之外的 body 末尾，
+            // player.js / clipboard.js 依赖它们，必须同步过来，否则波形/复制功能会报错。
+            document.body.querySelectorAll('template').forEach(function (node) { node.remove(); });
+            newDocument.body.querySelectorAll('template').forEach(function (node) {
+                document.body.appendChild(document.importNode(node, true));
+            });
         }
 
         function navigate(url, pushState, restoreScroll) {
